@@ -1,14 +1,24 @@
 pipeline {
   agent any
+
   stages {
-    stage('Build') {
+
+    stage('Build Image') {
       steps {
-        echo 'Build stage running'
+        sh '''
+        oc new-build --binary --name=cicd-demo || true
+        oc start-build cicd-demo --from-dir=. --follow
+        '''
       }
     }
+
     stage('Deploy') {
       steps {
-        echo 'Deploy stage running'
+        sh '''
+        oc apply -f deployment.yaml
+        oc apply -f service.yaml
+        oc apply -f route.yaml
+        '''
       }
     }
   }
